@@ -10,9 +10,9 @@
     },
     {
       "src": "api/index.py",
-      "use": "@vercel/python@3.12",
+      "use": "@vercel/python@3.14",
       "config": {
-        "runtime": "python3.12"
+        "runtime": "python3.14"
       }
     }
   ],
