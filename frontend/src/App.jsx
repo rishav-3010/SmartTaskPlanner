@@ -8,9 +8,8 @@ import GoalsList from './components/GoalsList'
 import axios from 'axios'
 // At the top, after imports
 axios.defaults.baseURL = import.meta.env.PROD 
-  ? ''  // ← Empty string, no prefix
-  : 'http://localhost:8000'
-
+  ? '/api'  // Production: use relative URL (Vercel routes to backend)
+  : 'http://localhost:8000'  // Development: local backend
 
 
 function App() {

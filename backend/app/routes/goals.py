@@ -3,7 +3,7 @@ from app.models import GoalCreate, GoalResponse, TaskResponse
 from app.services.task_service import task_service
 from typing import List
 
-router = APIRouter(prefix="/api/goals", tags=["goals"])
+router = APIRouter(prefix="/goals", tags=["goals"])
 
 
 @router.post("/", response_model=dict)

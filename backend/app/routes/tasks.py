@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from app.models import TaskStatus
 from app.services.task_service import task_service
 
-router = APIRouter(prefix="/api/tasks", tags=["tasks"])
+router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 class TaskStatusUpdate(BaseModel):
