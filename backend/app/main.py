@@ -9,7 +9,6 @@ from app.routes import goals, tasks
 
 load_dotenv()
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -27,7 +26,6 @@ async def lifespan(app: FastAPI):
     print("👋 Shutting down...")
     await close_mongo_connection()
 
-
 # Create FastAPI app
 app = FastAPI(
     title="Smart Task Planner API",
@@ -36,11 +34,17 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS
+# Configure CORS - Allow Vercel URL
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url, "http://localhost:3000"],  # Add multiple origins
+    allow_origins=[
+        frontend_url,
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://smart-task-planner-tau.vercel.app",  # Add your Vercel URL
+        "https://*.vercel.app"  # Allow all Vercel preview deployments
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,7 +53,6 @@ app.add_middleware(
 # Include routers
 app.include_router(goals.router)
 app.include_router(tasks.router)
-
 
 @app.get("/")
 async def root():
@@ -64,7 +67,6 @@ async def root():
         }
     }
 
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -73,7 +75,7 @@ async def health_check():
         "service": "smart-task-planner"
     }
 
-
+# This is for local development only
 if __name__ == "__main__":
     import uvicorn
     
@@ -84,7 +86,5 @@ if __name__ == "__main__":
         "app.main:app",
         host=host,
         port=port,
-        reload=True  # Auto-reload on code changes
+        reload=True
     )
-    # For Vercel serverless deployment
-app = app  # This exports the FastAPI app instance
