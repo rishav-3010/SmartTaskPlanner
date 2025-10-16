@@ -1,18 +1,21 @@
-from fastapi import FastAPI
-from mangum import Mangum
+"""
+Vercel Serverless handler for FastAPI backend
+This file is the entry point for all /api/* requests on Vercel
+"""
+
 import sys
 import os
+from pathlib import Path
 
-# Add backend to Python path
-backend_path = os.path.join(os.path.dirname(__file__), '..', 'backend')
-sys.path.insert(0, backend_path)
+# Add backend directory to Python path
+backend_dir = Path(__file__).parent.parent / "backend"
+sys.path.insert(0, str(backend_dir))
 
-# Import your FastAPI app
+# Import FastAPI app
 from app.main import app
 
-# Wrap for Vercel serverless
-handler = Mangum(app, lifespan="off")
+# Import Mangum for serverless adapter
+from mangum import Mangum
 
-# Also export app for Vercel
-def handler_func(event, context):
-    return handler(event, context)
+# Create handler for Vercel
+handler = Mangum(app, lifespan="off")

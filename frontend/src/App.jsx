@@ -6,11 +6,16 @@ import Timeline from './components/Timeline'
 import DependencyGraph from './components/DependencyGraph'
 import GoalsList from './components/GoalsList'
 import axios from 'axios'
-// At the top, after imports
+
+// ✅ CORRECT: Set baseURL based on environment
 axios.defaults.baseURL = import.meta.env.PROD 
-  ? '/api'  // Production: use relative URL (Vercel routes to backend)
+  ? '/api'  // Production: use /api (Vercel routes to backend)
   : 'http://localhost:8000'  // Development: local backend
 
+// Enable credentials for cross-origin
+axios.defaults.withCredentials = true
+
+console.log('API Base URL:', axios.defaults.baseURL)
 
 function App() {
   const [activeView, setActiveView] = useState('create') // create, tasks, timeline, graph
@@ -24,16 +29,17 @@ function App() {
     fetchGoals()
   }, [])
 
-const fetchGoals = async () => {
-  try {
-    const response = await axios.get('http://localhost:8000/api/goals/')  // Add full URL
-    console.log('Goals API response:', response.data)  // Debug line
-    setGoals(response.data)
-  } catch (error) {
-    console.error('Failed to fetch goals:', error)
-    setGoals([])  // Set empty array on error
+  // ✅ FIXED: Use baseURL properly (no hardcoded URL)
+  const fetchGoals = async () => {
+    try {
+      const response = await axios.get('/api/goals/')  // ✅ Uses baseURL + this path
+      console.log('Goals API response:', response.data)
+      setGoals(response.data)
+    } catch (error) {
+      console.error('Failed to fetch goals:', error)
+      setGoals([])
+    }
   }
-}
 
   const handleGoalCreated = (goalData) => {
     setCurrentGoal(goalData.goal)
@@ -78,7 +84,7 @@ const fetchGoals = async () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-primary-600 p-2 rounded-lg">
+              <div className="bg-blue-600 p-2 rounded-lg">
                 <Target className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -92,7 +98,7 @@ const fetchGoals = async () => {
                 onClick={() => setActiveView('create')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   activeView === 'create' 
-                    ? 'bg-primary-600 text-white' 
+                    ? 'bg-blue-600 text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -104,7 +110,7 @@ const fetchGoals = async () => {
                     onClick={() => setActiveView('tasks')}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       activeView === 'tasks' 
-                        ? 'bg-primary-600 text-white' 
+                        ? 'bg-blue-600 text-white' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -115,7 +121,7 @@ const fetchGoals = async () => {
                     onClick={() => setActiveView('timeline')}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       activeView === 'timeline' 
-                        ? 'bg-primary-600 text-white' 
+                        ? 'bg-blue-600 text-white' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -126,7 +132,7 @@ const fetchGoals = async () => {
                     onClick={() => setActiveView('graph')}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       activeView === 'graph' 
-                        ? 'bg-primary-600 text-white' 
+                        ? 'bg-blue-600 text-white' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -160,7 +166,7 @@ const fetchGoals = async () => {
         {activeView === 'tasks' && currentGoal && (
           <div>
             {/* Goal Header */}
-            <div className="card mb-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -206,7 +212,7 @@ const fetchGoals = async () => {
 
         {loading && (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         )}
       </main>
