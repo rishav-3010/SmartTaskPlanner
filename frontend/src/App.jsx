@@ -32,7 +32,7 @@ function App() {
   // ✅ FIXED: Use baseURL properly (no hardcoded URL)
   const fetchGoals = async () => {
     try {
-      const response = await axios.get('/api/goals/')  // ✅ Uses baseURL + this path
+      const response = await axios.get('/goals/')  // ✅ NO /api here (baseURL already has it)
       console.log('Goals API response:', response.data)
       setGoals(response.data)
     } catch (error) {
@@ -51,7 +51,7 @@ function App() {
   const handleGoalSelect = async (goalId) => {
     setLoading(true)
     try {
-      const response = await axios.get(`/api/goals/${goalId}`)
+      const response = await axios.get(`/goals/${goalId}`)  // ✅ NO /api
       setCurrentGoal(response.data.goal)
       setTasks(response.data.tasks)
       setActiveView('tasks')
@@ -64,7 +64,7 @@ function App() {
 
   const handleTaskUpdate = async (taskId, newStatus) => {
     try {
-      await axios.patch(`/api/tasks/${taskId}/status`, {
+      await axios.patch(`/tasks/${taskId}/status`, {  // ✅ NO /api
         status: newStatus
       })
       
