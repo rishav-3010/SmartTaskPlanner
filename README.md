@@ -2,6 +2,9 @@
 
 An AI-powered task planning application that breaks down your goals into actionable tasks with intelligent timelines and dependency management using Google's Gemini AI.
 
+🎥 Demo Video
+Watch the full demo here: Smart Task Planner Demo
+
 ## ✨ Features
 
 - **AI-Powered Task Breakdown**: Automatically generates detailed task lists from goal descriptions
@@ -374,7 +377,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 For questions or feedback, please open an issue on GitHub.
 
-## 🎥 Demo Video
+## 🎥 Demo Video 
 
 Record a demo showing:
 1. Creating a goal
