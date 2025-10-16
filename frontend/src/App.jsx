@@ -6,7 +6,11 @@ import Timeline from './components/Timeline'
 import DependencyGraph from './components/DependencyGraph'
 import GoalsList from './components/GoalsList'
 import axios from 'axios'
-axios.defaults.baseURL = 'http://localhost:8000'
+// At the top, after imports
+axios.defaults.baseURL = import.meta.env.PROD 
+  ? '/api'  // Production: use relative URL (Vercel routes to backend)
+  : 'http://localhost:8000'  // Development: local backend
+
 
 function App() {
   const [activeView, setActiveView] = useState('create') // create, tasks, timeline, graph

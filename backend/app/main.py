@@ -86,3 +86,5 @@ if __name__ == "__main__":
         port=port,
         reload=True  # Auto-reload on code changes
     )
+    # For Vercel serverless deployment
+app = app  # This exports the FastAPI app instance
