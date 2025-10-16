@@ -19,14 +19,16 @@ function App() {
     fetchGoals()
   }, [])
 
-  const fetchGoals = async () => {
-    try {
-      const response = await axios.get('/api/goals/')
-      setGoals(response.data)
-    } catch (error) {
-      console.error('Failed to fetch goals:', error)
-    }
+const fetchGoals = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/goals/')  // Add full URL
+    console.log('Goals API response:', response.data)  // Debug line
+    setGoals(response.data)
+  } catch (error) {
+    console.error('Failed to fetch goals:', error)
+    setGoals([])  // Set empty array on error
   }
+}
 
   const handleGoalCreated = (goalData) => {
     setCurrentGoal(goalData.goal)
