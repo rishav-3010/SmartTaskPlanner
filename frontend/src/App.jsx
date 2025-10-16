@@ -6,6 +6,7 @@ import Timeline from './components/Timeline'
 import DependencyGraph from './components/DependencyGraph'
 import GoalsList from './components/GoalsList'
 import axios from 'axios'
+axios.defaults.baseURL = 'http://localhost:8000'
 
 function App() {
   const [activeView, setActiveView] = useState('create') // create, tasks, timeline, graph
