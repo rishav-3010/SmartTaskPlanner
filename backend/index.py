@@ -1,3 +1,5 @@
+# backend/index.py
 from app.main import app
-from mangum import Mangum
-handler = Mangum(app, lifespan="off")
+
+# Vercel will automatically wrap FastAPI app
+# No need for Mangum when using FastAPI preset!
