@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models import GoalCreate, Goal
 from app.services.task_service import task_service
-from app.database import init_db  # Add this import
+from app.database import get_database
 from typing import List
 import traceback
 
@@ -10,17 +10,18 @@ router = APIRouter(prefix="/api/goals", tags=["goals"])
 @router.get("/", response_model=List[dict])
 async def list_goals():
     """List all goals"""
+    client = None
     try:
         print("=== DEBUG: list_goals called ===")
         
-        # Initialize database on each request (serverless!)
-        await init_db()
-        print("=== DEBUG: DB initialized, fetching goals ===")
+        # Get fresh database connection
+        db, client = await get_database()
+        print("=== DEBUG: DB connected, fetching goals ===")
         
         goals = await Goal.find_all().to_list()
         print(f"=== DEBUG: Found {len(goals)} goals ===")
         
-        return [
+        result = [
             {
                 "id": str(goal.id),
                 "title": goal.title,
@@ -32,21 +33,29 @@ async def list_goals():
             for goal in goals
         ]
         
+        return result
+        
     except Exception as e:
         print(f"=== ERROR in list_goals ===")
         print(f"Error: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to list goals: {str(e)}")
+    finally:
+        # Always close the client
+        if client:
+            client.close()
+            print("=== DEBUG: MongoDB client closed ===")
 
 @router.post("/", response_model=dict)
 async def create_goal(goal_data: GoalCreate):
     """Create a new goal and generate tasks using AI"""
+    client = None
     try:
-        print(f"=== DEBUG: create_goal called with: {goal_data.dict()} ===")
+        print(f"=== DEBUG: create_goal called ===")
         
-        # Initialize database
-        await init_db()
-        print("=== DEBUG: DB initialized ===")
+        # Get fresh database connection
+        db, client = await get_database()
+        print("=== DEBUG: DB connected ===")
         
         result = await task_service.create_goal_with_tasks(
             title=goal_data.title,
@@ -94,12 +103,18 @@ async def create_goal(goal_data: GoalCreate):
         print(f"Error: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to create goal: {str(e)}")
+    finally:
+        if client:
+            client.close()
+            print("=== DEBUG: MongoDB client closed ===")
 
 @router.get("/{goal_id}", response_model=dict)
 async def get_goal(goal_id: str):
     """Get a specific goal with all its tasks"""
+    client = None
     try:
-        await init_db()  # Initialize DB
+        # Get fresh database connection
+        db, client = await get_database()
         
         result = await task_service.get_goal_with_tasks(goal_id)
         goal = result["goal"]
@@ -138,3 +153,6 @@ async def get_goal(goal_id: str):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve goal: {str(e)}")
+    finally:
+        if client:
+            client.close()

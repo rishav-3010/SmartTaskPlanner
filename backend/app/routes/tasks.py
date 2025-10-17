@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.models import TaskStatus
+from app.models import TaskStatus, Task
 from app.services.task_service import task_service
+from app.database import get_database
+
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
@@ -21,7 +23,11 @@ async def update_task_status(task_id: str, status_update: TaskStatusUpdate):
         "status": "in_progress"  // pending, in_progress, completed, blocked
     }
     """
+    client = None
     try:
+        # Get fresh database connection
+        db, client = await get_database()
+        
         # Validate status
         valid_statuses = ["pending", "in_progress", "completed", "blocked"]
         if status_update.status not in valid_statuses:
@@ -50,15 +56,19 @@ async def update_task_status(task_id: str, status_update: TaskStatusUpdate):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update task: {str(e)}")
+    finally:
+        if client:
+            client.close()
 
 
 @router.get("/{task_id}")
 async def get_task(task_id: str):
-    """
-    Get a specific task by ID
-    """
+    """Get a specific task by ID"""
+    client = None
     try:
-        from app.models import Task
+        # Get fresh database connection
+        db, client = await get_database()
+        
         task = await Task.get(task_id)
         
         if not task:
@@ -89,3 +99,6 @@ async def get_task(task_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve task: {str(e)}")
+    finally:
+        if client:
+            client.close()
