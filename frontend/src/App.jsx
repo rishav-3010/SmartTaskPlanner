@@ -9,7 +9,7 @@ import axios from 'axios'
 
 // ✅ CORRECT: Set baseURL based on environment
 axios.defaults.baseURL = import.meta.env.PROD 
-  ? '/api'  // Production: use /api (Vercel routes to backend)
+  ? 'https://smart-task-planner-backend.vercel.app/'  // Production: use /api (Vercel routes to backend)
   : 'http://localhost:8000'  // Development: local backend
 
 // Enable credentials for cross-origin
