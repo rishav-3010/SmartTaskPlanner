@@ -1,40 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 import os
-from dotenv import load_dotenv
 
-from app.database import connect_to_mongo, close_mongo_connection
 from app.routes import goals, tasks
 
-load_dotenv()
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Lifespan events for FastAPI app
-    Handles startup and shutdown
-    """
-    # Startup
-    print("🚀 Starting Smart Task Planner API...")
-    await connect_to_mongo()
-    print("✅ API is ready!")
-    
-    yield
-    
-    # Shutdown
-    print("👋 Shutting down...")
-    await close_mongo_connection()
-
-# Create FastAPI app
+# NO lifespan context manager for serverless!
 app = FastAPI(
     title="Smart Task Planner API",
     description="AI-powered task breakdown and planning system",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
-# Configure CORS - Allow Vercel URL
+# Configure CORS
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 app.add_middleware(
     CORSMiddleware,
@@ -42,8 +19,8 @@ app.add_middleware(
         frontend_url,
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://smart-task-planner-tau.vercel.app",  # Add your Vercel URL
-        "https://*.vercel.app"  # Allow all Vercel preview deployments
+        "https://smart-task-planner-tau.vercel.app",
+        "https://*.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -56,7 +33,6 @@ app.include_router(tasks.router)
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {
         "message": "Welcome to Smart Task Planner API",
         "version": "1.0.0",
@@ -69,22 +45,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {
         "status": "healthy",
         "service": "smart-task-planner"
     }
-
-# This is for local development only
-if __name__ == "__main__":
-    import uvicorn
-    
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", 8000))
-    
-    uvicorn.run(
-        "app.main:app",
-        host=host,
-        port=port,
-        reload=True
-    )
